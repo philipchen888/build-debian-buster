@@ -1,0 +1,149 @@
+This is to build Debian Buster sdcard image ( lxde, xfce4, kde, gnome ) for following SBC's:
+rpi4b  ( Raspberry Pi 4B )
+radxa  ( Rock Pi 4B plus )
+tinker ( ASUS TinkerBoard )
+
+Steps to build Debian Buster sdcard image ( lxde, xfce4, kde, gnome ):
+
+1. git clone https://github.com/philipchen888/build-debian-buster.git
+   sudo apt-get install build-essential git libssl-dev nmap net-tools libncurses5-dev libncursesw5-dev dnsutils vsftpd ftp binfmt-support qemu-user-static scons libncurses5-dev libncursesw5-dev libdbus-glib-1-dev libbluetooth-dev python-dev python-setuptools python3-dev python3-pip python3-setuptools libcurl4-openssl-dev gettext dbus-x11 chrpath diffstat gawk texinfo curl flex bison device-tree-compiler python swig
+
+2. Install cross compiler and live-build:
+   wget https://releases.linaro.org/components/toolchain/binaries/latest-7/aarch64-linux-gnu/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
+   sudo tar xvf gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz  -C /usr/local/
+   wget https://releases.linaro.org/components/toolchain/binaries/latest-7/arm-linux-gnueabihf/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz
+   sudo tar xvf gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz -C /usr/local/
+   sudo apt-get install debootstrap debhelper kpartx gdisk devscripts dh-systemd isolinux po4a
+   wget https://launchpad.net/debian/+archive/primary/+sourcefiles/live-build/1:20210407/live-build_20210407.tar.xz
+   tar xvf live-build_20210407.tar.xz
+   cd live-build
+   sudo make install
+
+3. cd ~/build-debian-buster/rpi4b
+   git clone https://github.com/raspberrypi/linux --depth=1 -b rpi-5.4.y
+   cd linux; mkdir tmp; cd tmp; mkdir lib;
+   cd ../../; mkdir out;
+
+   make all
+   The result is in ./out/sdcard.img
+   make cleanall
+
+   sudo dd if=./out/sdcard.img of=/dev/sda bs=4096 conv=notrunc,fsync
+
+4. cd ~/build-debian-buster/radxa
+   git clone https://github.com/radxa/u-boot --depth=1 -b stable-4.4-rockpi4
+   wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.15.tar.xz
+   tar -xJf linux-5.15.tar.xz
+   cd linux-5.15; mkdir tmp; cd tmp; mkdir lib;
+   cd ../../; mkdir out;
+
+   make all
+   The result is in ./out/sdcard.img
+   make cleanall
+
+   sudo dd if=./out/sdcard.img of=/dev/sda bs=4096 conv=notrunc,fsync
+
+5. cd ~/build-debian-buster/tinker
+   git clone https://github.com/TinkerBoard/debian_u-boot.git --depth=1 -b release
+   wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.10.tar.xz
+   tar -xJf linux-5.10.tar.xz
+   cd linux-5.10; mkdir tmp; cd tmp; mkdir lib;
+   cd ../../; mkdir out;
+
+   make all
+   The result is in ./out/sdcard.img
+   make cleanall
+
+   sudo dd if=./out/sdcard.img of=/dev/sda bs=4096 conv=notrunc,fsync
+
+Wifi drivers of radxa and tinker are not supported in linux mainline kernel.
+Plugin ethernet cable to radxa and tinker.
+Plugin USB headphone to tinker and rpi4b.
+Plugin sdcard to SBC
+mouse right click on the screen, select terminal emulator.
+Login:
+Username: linaro
+Password: linaro
+uname -a
+lsb_release -a
+Setup wifi for rpi4b
+sudo ifconfig
+nmcli dev wifi connect "SSID" password "PASSWORD"
+sudo dpkg-reconfigure tzdata
+sudo dpkg-reconfigure locales
+sudo apt update
+sudo apt upgrade
+sync
+sudo rm /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.xml
+sudo apt install tasksel
+sudo tasksel --list-tasks
+For lxde:  sudo tasksel install lxde-desktop  ( then sudo vi /etc/lightdm/lightdm.conf delete autologin-user=linaro )
+For xfce4: sudo tasksel install xfce-desktop  ( then sudo apt remove --purge openbox )
+For kde:   sudo tasksel install kde-desktop   ( then sudo apt remove --purge openbox )
+For gnome: sudo tasksel install gnome-desktop ( then sudo apt remove --purge openbox )
+sync
+sudo reboot
+Disable power saving and screen saver.
+glxinfo | grep OpenGL
+date
+
+sudo apt install speedtest-cli build-essential libjpeg-dev libpng-dev libpng16-16 pkg-config libx11-dev python3-pip python3-setuptools chromium chromium-sandbox
+speedtest-cli
+
+git clone https://github.com/glmark2/glmark2.git -b release-2020.04
+cd glmark2
+./waf configure --with-flavors=x11-glesv2
+./waf
+sudo ./waf install
+
+For radxa and tinker, install panfrost mesa in buster for xfce4, kde, and gnome:
+cd ~/
+sudo apt-get remove meson
+sudo pip3 install meson mako setuptools
+git clone https://gitlab.freedesktop.org/mesa/mesa --depth=1 -b 20.3
+cd mesa; mkdir build;
+meson build/ -Dgallium-drivers=lima,panfrost,kmsro,swrast -Dplatforms=x11,wayland -Dvulkan-drivers= -Ddri-drivers= -Dllvm=false
+ninja -C build/
+sudo ninja -C build/ install
+sudo ldconfig
+sync
+sudo reboot
+glxinfo |grep OpenGL
+glmark2-es2
+
+Chromium -> youtube.com -> search YmDNhi07_Ho
+
+pip3 install -U yt-dlp
+~/.local/bin/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
+vlc avemaria.mp4
+
+For rpi4b, install mesa and drm in buster:
+cd ~/
+sudo apt-get remove meson
+sudo pip3 install meson mako setuptools
+sudo vi /etc/apt/sources.list.d/raspi.list ( add deb-src http://archive.raspberrypi.org/debian/ buster main)
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 7FA3303E
+sudo apt-get update
+sudo apt-get build-dep mesa -y  ( ignore errors )
+sudo vi /etc/apt/sources.list.d/raspi.list ( comment out first line )
+git clone --depth=1 -b mesa-19.3.2 https://gitlab.freedesktop.org/mesa/mesa/
+cd mesa; mkdir build; cd build;
+sudo apt-get install libxcb-randr0-dev libxrandr-dev libxcb-xinerama0-dev libxinerama-dev libxcursor-dev libxcb-cursor-dev libxkbcommon-dev xutils-dev xutils-dev libpthread-stubs0-dev libpciaccess-dev libffi-dev x11proto-xext-dev libxcb1-dev bison flex libssl-dev libgnutls28-dev x11proto-dri2-dev x11proto-dri3-dev libx11-dev libxcb-glx0-dev libx11-xcb-dev libxext-dev libxdamage-dev libxfixes-dev libva-dev x11proto-randr-dev x11proto-present-dev libclc-dev libelf-dev git build-essential mesa-utils libvulkan-dev ninja-build libvulkan1 python-mako libdrm-dev libxshmfence-dev libxxf86vm-dev libunwind-dev vulkan-tools vulkan-utils ninja-build libxcb-*dev wayland-protocols libwayland-egl-backend-dev gettext libexpat1-dev
+
+sudo meson --prefix="/usr" ..
+sudo ninja install
+cd ~/
+git clone --depth=1 https://gitlab.freedesktop.org/mesa/drm
+cd drm; mkdir build; cd build;
+sudo meson --prefix="/usr" ..
+sudo ninja install
+sync
+sudo reboot
+glxinfo |grep OpenGL
+glmark2-es2
+
+Chromium -> youtube.com -> search YmDNhi07_Ho
+
+pip3 install -U yt-dlp
+~/.local/bin/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
+vlc avemaria.mp4
