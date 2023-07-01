@@ -58,7 +58,7 @@ Steps to build Debian Buster sdcard image ( lxde, xfce4, kde, gnome ):
 
 Wifi drivers of radxa and tinker are not supported in linux mainline kernel.
 Plugin ethernet cable to radxa and tinker.
-Plugin USB headphone to tinker and rpi4b.
+For better sound performance, plugin USB headphone to tinker and rpi4b.
 Plugin sdcard to SBC
 mouse right click on the screen, select terminal emulator.
 Login:
@@ -87,35 +87,39 @@ Disable power saving and screen saver.
 glxinfo | grep OpenGL
 date
 
-sudo apt install speedtest-cli build-essential libjpeg-dev libpng-dev libpng16-16 pkg-config libx11-dev python3-pip python3-setuptools chromium chromium-sandbox
+sudo apt install speedtest-cli build-essential libjpeg-dev libpng-dev libpng16-16 pkg-config libx11-dev python3-pip python3-setuptools chromium chromium-sandbox ffmpeg mpv
+
 speedtest-cli
 
-git clone https://github.com/glmark2/glmark2.git -b release-2020.04
+git clone https://github.com/glmark2/glmark2.git -b 2021.02
 cd glmark2
 ./waf configure --with-flavors=x11-glesv2
 ./waf
 sudo ./waf install
 
-For radxa and tinker, install panfrost mesa in buster for xfce4, kde, and gnome:
+For radxa and tinker, install panfrost mesa in buster for xfce4, kde, and gnome ( not lxde ) :
 cd ~/
 sudo apt-get remove meson
 sudo pip3 install meson mako setuptools
 git clone https://gitlab.freedesktop.org/mesa/mesa --depth=1 -b 20.3
 cd mesa; mkdir build;
+sudo apt install bison flex libdrm-dev libwayland-dev wayland-protocols libwayland-egl-backend-dev libxcb-dri3-dev libxcb-dri2-0-dev libxcb-glx0-dev libx11-xcb-dev libxcb-present-dev libxcb-sync-dev libxxf86vm-dev libxshmfence-dev libxrandr-dev libwayland-dev libxdamage-dev libxext-dev libxfixes-dev x11proto-dri2-dev x11proto-dri3-dev x11proto-present-dev x11proto-gl-dev x11proto-xf86vidmode-dev libexpat1-dev libudev-dev gettext mesa-utils xutils-dev libpthread-stubs0-dev ninja-build bc cmake valgrind llvm pkg-config zlib1g-dev libxcb-shm0-dev
+
 meson build/ -Dgallium-drivers=lima,panfrost,kmsro,swrast -Dplatforms=x11,wayland -Dvulkan-drivers= -Ddri-drivers= -Dllvm=false
 ninja -C build/
 sudo ninja -C build/ install
 sudo ldconfig
 sync
 sudo reboot
+date
 glxinfo |grep OpenGL
 glmark2-es2
 
 Chromium -> youtube.com -> search YmDNhi07_Ho
 
-pip3 install -U yt-dlp
+pip3 install --no-deps -U yt-dlp
 ~/.local/bin/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
-vlc avemaria.mp4
+mpv avemaria.mp4  ( note: mpv dosen't work in lxde )
 
 For rpi4b, install mesa and drm in buster:
 cd ~/
@@ -139,11 +143,12 @@ sudo meson --prefix="/usr" ..
 sudo ninja install
 sync
 sudo reboot
+date
 glxinfo |grep OpenGL
 glmark2-es2
 
 Chromium -> youtube.com -> search YmDNhi07_Ho
 
-pip3 install -U yt-dlp
+pip3 install --no-deps -U yt-dlp
 ~/.local/bin/yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' hyUhEjtlDLA -o avemaria.mp4
-vlc avemaria.mp4
+mpv avemaria.mp4
