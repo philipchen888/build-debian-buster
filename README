@@ -87,9 +87,11 @@ Disable power saving and screen saver.
 glxinfo | grep OpenGL
 date
 
-sudo apt install speedtest-cli build-essential libjpeg-dev libpng-dev libpng16-16 pkg-config libx11-dev python3-pip python3-setuptools chromium chromium-sandbox ffmpeg mpv
+sudo apt install speedtest-cli libjpeg-dev libpng-dev libpng16-16 pkg-config libx11-dev python3-pip python3-setuptools chromium chromium-sandbox ffmpeg mpv
 
 speedtest-cli
+or if not working:
+speedtest-cli --secure
 
 git clone https://github.com/glmark2/glmark2.git -b 2021.02
 cd glmark2
@@ -132,7 +134,7 @@ sudo apt-get build-dep mesa -y  ( ignore errors )
 sudo vi /etc/apt/sources.list.d/raspi.list ( comment out first line )
 git clone --depth=1 -b mesa-19.3.2 https://gitlab.freedesktop.org/mesa/mesa/
 cd mesa; mkdir build; cd build;
-sudo apt-get install libxcb-randr0-dev libxrandr-dev libxcb-xinerama0-dev libxinerama-dev libxcursor-dev libxcb-cursor-dev libxkbcommon-dev xutils-dev xutils-dev libpthread-stubs0-dev libpciaccess-dev libffi-dev x11proto-xext-dev libxcb1-dev bison flex libssl-dev libgnutls28-dev x11proto-dri2-dev x11proto-dri3-dev libx11-dev libxcb-glx0-dev libx11-xcb-dev libxext-dev libxdamage-dev libxfixes-dev libva-dev x11proto-randr-dev x11proto-present-dev libclc-dev libelf-dev git build-essential mesa-utils libvulkan-dev ninja-build libvulkan1 python-mako libdrm-dev libxshmfence-dev libxxf86vm-dev libunwind-dev vulkan-tools vulkan-utils ninja-build libxcb-*dev wayland-protocols libwayland-egl-backend-dev gettext libexpat1-dev
+sudo apt-get install libxcb-randr0-dev libxrandr-dev libxcb-xinerama0-dev libxinerama-dev libxcursor-dev libxcb-cursor-dev libxkbcommon-dev xutils-dev xutils-dev libpthread-stubs0-dev libpciaccess-dev libffi-dev x11proto-xext-dev libxcb1-dev bison flex libssl-dev libgnutls28-dev x11proto-dri2-dev x11proto-dri3-dev libx11-dev libxcb-glx0-dev libx11-xcb-dev libxext-dev libxdamage-dev libxfixes-dev libva-dev x11proto-randr-dev x11proto-present-dev libclc-dev libelf-dev mesa-utils libvulkan-dev ninja-build libvulkan1 python-mako libdrm-dev libxshmfence-dev libxxf86vm-dev libunwind-dev vulkan-tools vulkan-utils ninja-build libxcb-*dev wayland-protocols libwayland-egl-backend-dev gettext libexpat1-dev
 
 sudo meson --prefix="/usr" ..
 sudo ninja install
