@@ -31,7 +31,8 @@ Steps to build Debian Buster sdcard image ( lxde, xfce4, kde, gnome ):
    sudo dd if=./out/sdcard.img of=/dev/sda bs=4096 conv=notrunc,fsync
 
 4. cd ~/build-debian-buster/radxa
-   git clone https://github.com/radxa/u-boot --depth=1 -b stable-4.4-rockpi4
+   sudo apt-get install libgnutls28-dev
+   git clone https://github.com/u-boot/u-boot.git -b u-boot-2023.07.y
    wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.15.tar.xz
    tar -xJf linux-5.15.tar.xz
    cd linux-5.15; mkdir tmp; cd tmp; mkdir lib;
